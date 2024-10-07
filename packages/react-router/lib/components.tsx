@@ -821,14 +821,14 @@ export function Routes({
   return useRoutes(createRoutesFromChildren(children), location);
 }
 
-export interface AwaitResolveRenderFunction {
-  (data: Awaited<any>): React.ReactNode;
+export interface AwaitResolveRenderFunction<T> {
+  (data: Awaited<T>): React.ReactNode;
 }
 
 /**
  * @category Types
  */
-export interface AwaitProps {
+export interface AwaitProps<T> {
   /**
   When using a function, the resolved value is provided as the parameter.
 
@@ -852,7 +852,7 @@ export interface AwaitProps {
   }
   ```
   */
-  children: React.ReactNode | AwaitResolveRenderFunction;
+  children: React.ReactNode | AwaitResolveRenderFunction<T>;
 
   /**
   The error element renders instead of the children when the promise rejects.
@@ -971,7 +971,7 @@ function Book() {
 @category Components
 
 */
-export function Await({ children, errorElement, resolve }: AwaitProps) {
+export function Await<T>({ children, errorElement, resolve }: AwaitProps<T>) {
   return (
     <AwaitErrorBoundary resolve={resolve} errorElement={errorElement}>
       <ResolveAwait>{children}</ResolveAwait>
@@ -1079,13 +1079,13 @@ class AwaitErrorBoundary extends React.Component<
  * @private
  * Indirection to leverage useAsyncValue for a render-prop API on `<Await>`
  */
-function ResolveAwait({
+function ResolveAwait<T>({
   children,
 }: {
-  children: React.ReactNode | AwaitResolveRenderFunction;
+  children: React.ReactNode | AwaitResolveRenderFunction<T>;
 }) {
   let data = useAsyncValue();
-  let toRender = typeof children === "function" ? children(data) : children;
+  let toRender = typeof children === "function" ? children(data as Awaited<T>) : children;
   return <>{toRender}</>;
 }
 
